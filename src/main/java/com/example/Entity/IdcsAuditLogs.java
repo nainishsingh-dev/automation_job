@@ -9,35 +9,58 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "sso_audit_logs")
+@Table(name = "audit_logs")
 public class IdcsAuditLogs {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audit_seq_gen")
     @SequenceGenerator(name = "audit_seq_gen", sequenceName = "AUDIT_SEQ", allocationSize = 1)
-    private Long sid;
-    private String eventId;
-    private String ssoMatchedSignOnPolicy;
-    private String actorDisplayName;
-    private String ssoUserAgent;
-    private String actorName;
-    private String serviceName;
-    private String ssoBrowser;
-    private String message;
-    private String ecId;
+    @Column(name="id")
+    private Long id;
+
+    @Column(name = "LOGIN_ID")
+    private String login;
+
+    @Column(name = "APPLICATION_ROLE_NAME")
+    private String applicationRoleName;
+
+    @Column(name = "CLIENT_IP")
     private String clientIp;
-    private boolean meterAsOPCService;
-    private String id;
+
+    @Column(name = "ECID")
+    private String ecid;
+
+    @Column(name = "RESPONSE")
+    private String response;
+
+    @Column(name = "AUTHENTICATION_LEVEL")
+    private String authenticationLevel;
+
+    @Column(name = "SSO_BROWSER")
+    private String ssoBrowser;
+
+    @Column(name = "SSO_COMMENTS")
     private String ssoComments;
-    private String timestamp;
-    private LocalDateTime createdTimeStamp;
-    private String adminValueAdded;
-    private String adminValueRemoved;
-    private String adminResourceName;
-    @PrePersist
-    void createdTimeStamp()
-    {
-        this.createdTimeStamp= LocalDateTime.now();
-    }
+
+    @Column(name = "MATCHED_SIGN_ON_POLICY")
+    private String matchedSignOnPolicy;
+
+    @Column(name = "MATCHED_SIGN_ON_POLICY_RULE")
+    private String matchedSignOnPolicyRule;
+
+    @Column(name = "SSO_SIGN_ON_POLICY_OBLIGATIONS")
+    private String ssoSignOnPolicyObligations;
+
+    @Column(name = "PROTECTED_RESOURCE")
+    private String protectedResource;
+
+    @Column(name = "USER_AGENT")
+    private String userAgent;
+
+    @Column(name = "LOGIN_DATE")
+    private LocalDateTime loginDate;
+
+    @Column(name="JOB_ID")
+    private Long jobId;
 
 
 }
