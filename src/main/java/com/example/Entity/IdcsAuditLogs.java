@@ -58,7 +58,6 @@ public class IdcsAuditLogs {
 
     @Column(name = "LOGIN_DATE")
     private LocalDateTime loginDate;
-
     @Column(name = "JOB_ID")
     private Long jobId;
     @Column(name = "ADMIN_VALUE_ADDED")

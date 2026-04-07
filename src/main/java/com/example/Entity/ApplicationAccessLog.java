@@ -20,7 +20,7 @@ public class ApplicationAccessLog {
     private String response;
     @Column(name="PROVIDER")
     private String provider;
-    @Column(name="DATE")
+    @Column(name="LOG_DATE")
     private LocalDateTime date;
     @Column(name = "JOB_ID")
     private Long jobId;
