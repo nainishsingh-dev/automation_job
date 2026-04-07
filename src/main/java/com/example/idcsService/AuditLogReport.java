@@ -134,7 +134,6 @@ public class AuditLogReport {
 
             jobStatusManger.updateStatus(job_id, false, e.getMessage());
         }
-        jobStatusManger.updateStatus(job_id, true, "");
     }
 
     //app access and failure report
@@ -210,7 +209,6 @@ public class AuditLogReport {
 
             jobStatusManger.updateStatus(job_id, false, e.getMessage());
         }
-        jobStatusManger.updateStatus(job_id, true, "");
     }
 
 
@@ -284,7 +282,6 @@ public class AuditLogReport {
 
             jobStatusManger.updateStatus(job_id, false, e.getMessage());
         }
-        jobStatusManger.updateStatus(job_id, true, "");
     }
 
 
@@ -371,7 +368,6 @@ public class AuditLogReport {
 
             jobStatusManger.updateStatus(job_id, false, e.getMessage());
         }
-        jobStatusManger.updateStatus(job_id, true, "");
     }
 
 
