@@ -30,7 +30,24 @@ public class Controller {
             auditLogReport.fetchAllTodayAuditEvents();
             return "success";
         }
+    @GetMapping("/audit-log/app")
+    String invokeAuditJobApp()
+    {
+        auditLogReport.applicationAccessLogs();
+        return "success";
+    }
+    @GetMapping("/audit-log/auth")
+    String invokeAuditJobAuth()
+    {
+        auditLogReport.authenticationSuccessFailureLogs();
+        return "success";
+    }
 
 
-
+    @GetMapping("/audit-log/noti")
+    String invokeAuditJobAuthNot()
+    {
+        auditLogReport.notificationLogs();
+        return "success";
+    }
 }

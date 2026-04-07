@@ -1,9 +1,6 @@
 package com.example.idcsService;
 
-import com.example.Entity.ApplicationAccessLog;
-import com.example.Entity.AuthenticationLogs;
-import com.example.Entity.IdcsAuditLogs;
-import com.example.Entity.JobsStatusLog;
+import com.example.Entity.*;
 import com.example.Repository.ApplicationAccessRepo;
 import com.example.Repository.AuditLogsRepo;
 import com.example.Model.OauthToken;
@@ -11,6 +8,7 @@ import com.example.Model.OauthToken;
 import java.net.URLEncoder;
 
 import com.example.Repository.AuthenticationLogRepo;
+import com.example.Repository.NotificationRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -49,7 +47,10 @@ public class AuditLogReport {
     private ApplicationAccessRepo applicationAccessRepo;
     @Autowired
     private AuthenticationLogRepo authenticationLogRepo;
+    @Autowired
+    private NotificationRepo notificationRepo;
 
+    //audit log report
     @Scheduled(cron = "0 0 1 * * ?")
     public void fetchAllTodayAuditEvents() {
         Long job_id = jobStatusManger.setInProgressStatus(auditLog);
@@ -57,7 +58,7 @@ public class AuditLogReport {
 
         try {
             LocalDate today = LocalDate.now(ZoneOffset.UTC);
-            LocalDate yesterday = today.minusDays(7);
+            LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
             String start = yesterday.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -69,11 +70,11 @@ public class AuditLogReport {
 
             while (startIndex < totalResults) {
                 String filter = String.format("timestamp ge \"%s\" and timestamp lt \"%s\"", start, end);
-                String encodedFilter = URLEncoder.encode(filter, StandardCharsets.UTF_8.toString());
-
-                String fullUrl = String.format(baseUrl, encodedFilter, startIndex);
+                String encodedFilter = URLEncoder.encode(filter, String.valueOf(StandardCharsets.UTF_8));
+                String fullUrl = String.format("%s?filter=%s&startIndex=%d", baseUrl, encodedFilter, startIndex);
 
                 URL url = new URL(fullUrl);
+
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setDoOutput(true);
@@ -104,7 +105,8 @@ public class AuditLogReport {
                             idcsAuditLogs.setSsoSignOnPolicyObligations(event.optString("SSO Sign-On policy obligations", null));
                             idcsAuditLogs.setProtectedResource(event.optString("ssoProtectedResource", null));
                             idcsAuditLogs.setUserAgent(event.optString("ssoUserAgent", null));
-
+                            idcsAuditLogs.setAdminValueAdded(event.optString("adminValuesAdded", null));
+                            idcsAuditLogs.setAdminValueRemoved(event.optString("adminValuesRemoved", null));
                             String timestamp = event.optString("timestamp", null);
 
                             if (timestamp != null && !timestamp.isEmpty()) {
@@ -135,14 +137,15 @@ public class AuditLogReport {
         jobStatusManger.updateStatus(job_id, true, "");
     }
 
-
-    private void applicationAccessLogs() {
+    //app access and failure report
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void applicationAccessLogs() {
         Long job_id = jobStatusManger.setInProgressStatus(applicationAccessLog);
         log.info("{} access job started | jobId={}", applicationAccessLog, job_id);
 
         try {
             LocalDate today = LocalDate.now(ZoneOffset.UTC);
-            LocalDate yesterday = today.minusDays(7);
+            LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
             String start = yesterday.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -153,10 +156,9 @@ public class AuditLogReport {
 
 
             while (startIndex < totalResults) {
-                String filter = String.format("timestamp ge \"%s\" and timestamp lt \"%s\" and (eventId eq \"sso.app.access.failure\" or eventId eq \"sso.app.access.success\")", start, end);
-                String encodedFilter = URLEncoder.encode(filter, StandardCharsets.UTF_8.toString());
-
-                String fullUrl = String.format(baseUrl, encodedFilter, startIndex);
+                String filter = String.format("timestamp ge \"%s\" and timestamp lt \"%s\"and (eventId eq \"sso.app.access.failure\" or eventId eq \"sso.app.access.success\")", start, end);
+                String encodedFilter = URLEncoder.encode(filter, String.valueOf(StandardCharsets.UTF_8));
+                String fullUrl = String.format("%s?filter=%s&startIndex=%d", baseUrl, encodedFilter, startIndex);
 
                 URL url = new URL(fullUrl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -165,6 +167,7 @@ public class AuditLogReport {
                 OauthToken token = IdcsTokenManager.fetchNewToken();
                 conn.setRequestProperty("Authorization", "Bearer " + token.getAccessToken());
 
+                System.out.println(fullUrl);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                     String response = reader.lines().collect(Collectors.joining());
                     JSONObject json = new JSONObject(response);
@@ -179,6 +182,8 @@ public class AuditLogReport {
                             applicationAccessLog.setLogin(event.optString("actorName", null));
                             applicationAccessLog.setResponse(event.optString("eventId", null));
                             applicationAccessLog.setSsoLocalIp(event.optString("ssoLocalIp", null));
+                            applicationAccessLog.setApplicationName(event.optString("ssoApplicationName", null));
+                            applicationAccessLog.setProvider(event.optString("ssoIdentityProvider", null));
                             String timestamp = event.optString("timestamp", null);
                             if (timestamp != null && !timestamp.isEmpty()) {
                                 applicationAccessLog.setDate(OffsetDateTime.parse(timestamp).toLocalDateTime());
@@ -209,15 +214,15 @@ public class AuditLogReport {
     }
 
 
-
-
-    private void authenticationSuccessFailureLogs() {
+//login and success and failure report
+    @Scheduled(cron = "0 0 3 * * ?")
+    public void authenticationSuccessFailureLogs() {
         Long job_id = jobStatusManger.setInProgressStatus(authenticationLog);
         log.info("{} access job started | jobId={}", authenticationLog, job_id);
 
         try {
             LocalDate today = LocalDate.now(ZoneOffset.UTC);
-            LocalDate yesterday = today.minusDays(7);
+            LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
             String start = yesterday.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -229,8 +234,9 @@ public class AuditLogReport {
 
             while (startIndex < totalResults) {
                 String filter = String.format("timestamp ge \"%s\" and timestamp lt \"%s\" and (eventId eq \"sso.session.create.success\" or eventId eq \"sso.authentication.failure\")", start, end);
-                String encodedFilter = URLEncoder.encode(filter, StandardCharsets.UTF_8.toString());
-                String fullUrl = String.format(baseUrl, encodedFilter, startIndex);
+                String encodedFilter = URLEncoder.encode(filter, String.valueOf(StandardCharsets.UTF_8));
+                String fullUrl = String.format("%s?filter=%s&startIndex=%d", baseUrl, encodedFilter, startIndex);
+
                 URL url = new URL(fullUrl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
@@ -275,6 +281,93 @@ public class AuditLogReport {
         } catch (Exception e) {
             e.printStackTrace();
             log.info("{} job failed | jobId={}", authenticationLog, job_id);
+
+            jobStatusManger.updateStatus(job_id, false, e.getMessage());
+        }
+        jobStatusManger.updateStatus(job_id, true, "");
+    }
+
+
+    // notification log report
+    @Scheduled(cron = "0 0 2 * * ?")
+    public void notificationLogs() {
+        Long job_id = jobStatusManger.setInProgressStatus(notificationLogg);
+        log.info("{} access job started | jobId={}", notificationLogg, job_id);
+
+        try {
+            LocalDate today = LocalDate.now(ZoneOffset.UTC);
+            LocalDate yesterday = today.minusDays(1);
+
+            String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
+            String start = yesterday.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
+            int startIndex = 0;
+            int totalResults = Integer.MAX_VALUE;
+            String baseUrl = ssoDomain + "/admin/v1/AuditEvents";
+//            String attributes = "actorName,actorDisplayName,eventId,clientip,timeStamp,serviceName,ssoBrowser,ecid,message,ssoComments,ssoUserAgent,ssoMatchedSignOnPolicy,adminValuesAdded,adminValuesRemoved,adminResourceName";
+
+
+            while (startIndex < totalResults) {
+                String filter = String.format("timestamp ge \"%s\" and timestamp lt \"%s\" and eventId eq \"notification.delivery.success\"", start, end);
+                String encodedFilter = URLEncoder.encode(filter, String.valueOf(StandardCharsets.UTF_8));
+                String fullUrl = String.format("%s?filter=%s&startIndex=%d", baseUrl, encodedFilter, startIndex);
+
+                URL url = new URL(fullUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setDoOutput(true);
+                OauthToken token = IdcsTokenManager.fetchNewToken();
+                conn.setRequestProperty("Authorization", "Bearer " + token.getAccessToken());
+
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String response = reader.lines().collect(Collectors.joining());
+                    JSONObject json = new JSONObject(response);
+                    JSONArray resources = json.optJSONArray("Resources");
+                    totalResults = json.optInt("totalResults", 0);
+                    ArrayList<NotificationLogs> logsArrayList = new ArrayList<>();
+
+                    if (resources != null) {
+                        for (int i = 0; i < resources.length(); i++) {
+                            NotificationLogs notificationLogs = new NotificationLogs();
+                            JSONObject event = resources.getJSONObject(i);
+                            notificationLogs.setActorName(event.optString("actorName", null));
+                            notificationLogs.setEventId(event.optString("eventId", null));
+                            notificationLogs.setClientIp(event.optString("clientIp", null));
+                            notificationLogs.setActorDisplayName(event.optString("actorDisplayName", null));
+                            notificationLogs.setNotificationPushBody(event.optString("notificationPushBody", null));
+                            notificationLogs.setNotificationDeliveryChannel(event.optString("notificationDeliveryChannel", null));
+                            notificationLogs.setActorType(event.optString("actorType", null));
+                            notificationLogs.setMessage(event.optString("message", null));
+                            notificationLogs.setReasonValue(event.optString("reasonValue", null));
+                            notificationLogs.setNotificationDeliveryEmailSubject(event.optString("notificationDeliveryEmailSubject", null));
+                            notificationLogs.setNotificationDeliveryEmailTo(event.optString("notificationDeliveryEmailTo", null));
+                            notificationLogs.setNotificationDeliveryEmailFrom(event.optString("notificationDeliveryEmailFrom", null));
+                            notificationLogs.setNotificationDeliveryEmailStatus(event.optString("notificationDeliveryEmailStatus", null));
+
+                            notificationLogs.setJobId(job_id);
+
+                            String timestamp = event.optString("timestamp", null);
+                            if (timestamp != null && !timestamp.isEmpty()) {
+                                notificationLogs.setTimestamp(OffsetDateTime.parse(timestamp).toLocalDateTime());
+                            } else {
+                                notificationLogs.setTimestamp(null);
+                            }
+                            notificationLogs.setJobId(job_id);
+                            logsArrayList.add(notificationLogs);
+                        }
+                        notificationRepo.saveAll(logsArrayList);
+                        startIndex++;
+                    } else {
+                        break; // No more data
+                    }
+                }
+            }
+
+            jobStatusManger.updateStatus(job_id, true, "");
+            log.info("{} job completed successfully | jobId={}", notificationLogg, job_id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("{} job failed | jobId={}", notificationLogg, job_id);
 
             jobStatusManger.updateStatus(job_id, false, e.getMessage());
         }

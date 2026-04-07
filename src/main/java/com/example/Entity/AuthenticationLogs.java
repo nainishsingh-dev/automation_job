@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "authentication_success_failure_log")
+@Table(name = "authentication_log")
 public class AuthenticationLogs {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audit_seq_gen")

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class ApplicationAccessLog {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audit_seq_gen")
-    @SequenceGenerator(name = "audit_seq_gen", sequenceName = "APP_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "audit_seq_gen", sequenceName = "APP_ACCESS_SEQ", allocationSize = 1)
     @Column(name="ID")
     private Long id;
     @Column(name="LOGIN")
@@ -26,5 +26,7 @@ public class ApplicationAccessLog {
     private Long jobId;
     @Column(name="SSO_LOCAL_IP")
     private String ssoLocalIp;
+    @Column(name = "APP_NAME")
+    private String applicationName;
 
 }

@@ -14,7 +14,7 @@ public class IdcsAuditLogs {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "audit_seq_gen")
     @SequenceGenerator(name = "audit_seq_gen", sequenceName = "AUDIT_SEQ", allocationSize = 1)
-    @Column(name="id")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "LOGIN_ID")
@@ -59,8 +59,12 @@ public class IdcsAuditLogs {
     @Column(name = "LOGIN_DATE")
     private LocalDateTime loginDate;
 
-    @Column(name="JOB_ID")
+    @Column(name = "JOB_ID")
     private Long jobId;
+    @Column(name = "ADMIN_VALUE_ADDED")
+    private String adminValueAdded;
+    @Column(name = "ADMIN_VALUE_REMOVED")
+    private String adminValueRemoved;
 
 
 }
