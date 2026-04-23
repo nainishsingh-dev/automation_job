@@ -22,7 +22,7 @@ public class NotificationLogs {
     private String notificationPushBody;
     private String actorDisplayName;
     private String notificationDeliveryChannel;
-    private LocalDateTime timestamp;
+    private LocalDateTime createdTimestamp;
     private Long jobId;
     private String notificationDeliveryEmailSubject;
     private String notificationDeliveryEmailTo;

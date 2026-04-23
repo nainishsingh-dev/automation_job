@@ -49,13 +49,10 @@ public class IdcsAuditLogs {
 
     @Column(name = "SSO_SIGN_ON_POLICY_OBLIGATIONS")
     private String ssoSignOnPolicyObligations;
-
     @Column(name = "PROTECTED_RESOURCE")
     private String protectedResource;
-
     @Column(name = "USER_AGENT")
     private String userAgent;
-
     @Column(name = "LOGIN_DATE")
     private LocalDateTime loginDate;
     @Column(name = "JOB_ID")

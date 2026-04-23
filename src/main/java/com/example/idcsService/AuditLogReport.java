@@ -57,7 +57,7 @@ public class AuditLogReport {
         log.info("{} job started | jobId={}", auditLog, job_id);
 
         try {
-            LocalDate today = LocalDate.now(ZoneOffset.UTC);
+            LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -143,7 +143,7 @@ public class AuditLogReport {
         log.info("{} access job started | jobId={}", applicationAccessLog, job_id);
 
         try {
-            LocalDate today = LocalDate.now(ZoneOffset.UTC);
+            LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -219,7 +219,7 @@ public class AuditLogReport {
         log.info("{} access job started | jobId={}", authenticationLog, job_id);
 
         try {
-            LocalDate today = LocalDate.now(ZoneOffset.UTC);
+            LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -292,7 +292,7 @@ public class AuditLogReport {
         log.info("{} access job started | jobId={}", notificationLogg, job_id);
 
         try {
-            LocalDate today = LocalDate.now(ZoneOffset.UTC);
+            LocalDate today = LocalDate.now();
             LocalDate yesterday = today.minusDays(1);
 
             String end = today.atStartOfDay(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT);
@@ -344,9 +344,9 @@ public class AuditLogReport {
 
                             String timestamp = event.optString("timestamp", null);
                             if (timestamp != null && !timestamp.isEmpty()) {
-                                notificationLogs.setTimestamp(OffsetDateTime.parse(timestamp).toLocalDateTime());
+                                notificationLogs.setCreatedTimestamp(OffsetDateTime.parse(timestamp).toLocalDateTime());
                             } else {
-                                notificationLogs.setTimestamp(null);
+                                notificationLogs.setCreatedTimestamp(null);
                             }
                             notificationLogs.setJobId(job_id);
                             logsArrayList.add(notificationLogs);
@@ -369,6 +369,9 @@ public class AuditLogReport {
             jobStatusManger.updateStatus(job_id, false, e.getMessage());
         }
     }
+
+
+
 
 
 }

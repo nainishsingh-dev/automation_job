@@ -1,6 +1,7 @@
 package com.example;
 
 import com.example.idcsService.AuditLogReport;
+import com.example.idcsService.CsvUtility;
 import com.example.idcsService.DeactivateUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,8 @@ public class Controller {
     private AuditLogReport auditLogReport;
     @Autowired
     private DeactivateUserService deactivateUserService;
+    @Autowired
+    private CsvUtility csvUtility;
 
 
     @GetMapping("/disable")
@@ -30,12 +33,14 @@ public class Controller {
             auditLogReport.fetchAllTodayAuditEvents();
             return "success";
         }
+
     @GetMapping("/audit-log/app")
     String invokeAuditJobApp()
     {
         auditLogReport.applicationAccessLogs();
         return "success";
     }
+
     @GetMapping("/audit-log/auth")
     String invokeAuditJobAuth()
     {
@@ -48,6 +53,12 @@ public class Controller {
     String invokeAuditJobAuthNot()
     {
         auditLogReport.notificationLogs();
+        return "success";
+    }
+
+    @GetMapping("/audit-log/report")
+    String generateReport() throws IOException {
+        csvUtility.generateAllCsvReports();
         return "success";
     }
 }
