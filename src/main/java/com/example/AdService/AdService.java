@@ -32,32 +32,30 @@ public class AdService {
     public void scanFiles() {
         File folder = new File(DIR);
         File[] files = folder.listFiles();
-        Long jobId= jobStatusManger.setInProgressStatus(EnumTemplate.adUserSyncJob,"");
+        Long jobId = jobStatusManger.setInProgressStatus(EnumTemplate.adUserSyncJob, "");
 
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         if (files == null) return;
         for (File file : files) {
 
-            if (!file.getName().endsWith(".csv"))
-                continue;
+            if (!file.getName().endsWith(".csv")) continue;
 
             try {
-                if(file.getName().contains(today)) {
+                if (file.getName().contains(today)) {
                     if (!isFileReady(file)) {
                         continue;
                     }
                     processCsv(file, jobId);
                     System.out.println("Processing: " + file.getName());
-                    jobStatusManger.updateStatus(jobId,true,"", file.getName());
+                    jobStatusManger.updateStatus(jobId, true, "", file.getName());
 
-                }
-                else {
-                    jobStatusManger.updateStatus(jobId,true,"File not available.", "");
+                } else {
+                    jobStatusManger.updateStatus(jobId, true, "File not available.", "");
 
                 }
             } catch (Exception e) {
 
-                jobStatusManger.updateStatus(jobId,false,e.getMessage(), file.getName());
+                jobStatusManger.updateStatus(jobId, false, e.getMessage(), file.getName());
                 System.out.println("Error in file: " + file.getName());
             }
         }
@@ -79,7 +77,7 @@ public class AdService {
     }
 
 
-    public void processCsv(File file,Long jobId) {
+    public void processCsv(File file, Long jobId) {
 
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -110,10 +108,8 @@ public class AdService {
 
                     String rawDate = c[6].replace("\"", "").trim();
 
-                    DateTimeFormatter formatter =
-                            DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a");
-                    LocalDateTime whenCreated =
-                            LocalDateTime.parse(rawDate, formatter);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a");
+                    LocalDateTime whenCreated = LocalDateTime.parse(rawDate, formatter);
 
                     user.setWhenCreated(whenCreated);
                     user.setManager(c[7]);
@@ -124,7 +120,7 @@ public class AdService {
 
                 } catch (Exception e) {
                     System.out.println("Bad row: " + line);
-                    jobStatusManger.updateStatus(jobId,false,e.getMessage(), file.getName());
+                    jobStatusManger.updateStatus(jobId, false, e.getMessage(), file.getName());
                     System.out.println("Error in file: " + file.getName());
                 }
             }
