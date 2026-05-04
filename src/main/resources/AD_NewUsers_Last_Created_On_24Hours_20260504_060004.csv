@@ -1,0 +1,4 @@
+﻿"DisplayName","SamAccountName","Mail","Description","Department","Office","WhenCreated","Manager","Enabled"
+"Test Account","test.account4",,,,,"4/6/2026 9:47:26 AM",,"False"
+"TestAccount222","testaccount222",,,,,"4/6/2026 10:02:53 AM",,"False"
+"Edac Support/Service Accounts","svc-edac.support","no.email_svc-edac_support@escortskubota.com","104515","IT","Plant 2","4/6/2026 7:21:34 PM","CN=Manish K Srivastava/EKL/Digitalization,OU=IT,OU=EKI,DC=corpad,DC=com","True"

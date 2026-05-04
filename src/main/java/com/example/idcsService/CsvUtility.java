@@ -57,7 +57,7 @@ public class CsvUtility {
     private final StringBuilder errorBuffer = new StringBuilder();
     @Scheduled(cron = "0 0 5 * * ?")
     public void generateAllCsvReports() {
-        Long job_id = jobStatusManger.setInProgressStatus(csvReportJob);
+        Long job_id = jobStatusManger.setInProgressStatus(csvReportJob,"");
         errorBuffer.setLength(0);
 
         try {
@@ -75,21 +75,21 @@ public class CsvUtility {
             generateIdcsAuditLog(fullPath,YESTERDAY);
             if(errorBuffer.length()>0)
             {
-                jobStatusManger.updateStatus(job_id,true,errorBuffer.toString());
+                jobStatusManger.updateStatus(job_id,true,errorBuffer.toString(),"");
 
             }
             else {
-                jobStatusManger.updateStatus(job_id,true,"");
+                jobStatusManger.updateStatus(job_id,true,"","");
 
             }
 
         } catch (IOException e) {
             System.err.println("Error creating directories or generating reports: " + e.getMessage());
             e.printStackTrace();
-            jobStatusManger.updateStatus(job_id,false,"Error creating directories or generating reports: " + e.getMessage());
+            jobStatusManger.updateStatus(job_id,false,"Error creating directories or generating reports: " + e.getMessage(),"");
         } catch (Exception e) {
             System.err.println("Unexpected error: " + e.getMessage());
-            jobStatusManger.updateStatus(job_id,false,"Unexpected error:: " + e.getMessage());
+            jobStatusManger.updateStatus(job_id,false,"Unexpected error:: " + e.getMessage(),"");
             e.printStackTrace();
         }
     }

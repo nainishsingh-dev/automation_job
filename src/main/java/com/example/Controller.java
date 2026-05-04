@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.AdService.AdService;
 import com.example.idcsService.AuditLogReport;
 import com.example.idcsService.CsvUtility;
 import com.example.idcsService.DeactivateUserService;
@@ -19,6 +20,8 @@ public class Controller {
     private DeactivateUserService deactivateUserService;
     @Autowired
     private CsvUtility csvUtility;
+    @Autowired
+    private AdService adService;
 
 
     @GetMapping("/disable")
@@ -59,6 +62,12 @@ public class Controller {
     @GetMapping("/audit-log/report")
     String generateReport() throws IOException {
         csvUtility.generateAllCsvReports();
+        return "success";
+    }
+
+    @GetMapping("/ad-job")
+    String invokeAdJob(){
+        adService.scanFiles();
         return "success";
     }
 }

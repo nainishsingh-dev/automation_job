@@ -1,3 +1,0 @@
-LOGIN,RESPONSE,PROVIDER,LOG_DATE,SSO_LOCAL_IP,APP_NAME
-"nainish.singh@escortskubota.com",sso.app.access.success,UserNamePassword,2026-04-21T04:11:51.544,10.244.11.31,"OCI Console"
-"vikas.gupta4@escortskubota.com",sso.app.access.success,UserNamePassword,2026-04-21T06:50:40.519,10.244.17.36,"AG-EKL_OAG_TEST-vif2tgdlla"

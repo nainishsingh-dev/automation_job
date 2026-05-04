@@ -14,20 +14,22 @@ public class JobStatusManger {
     @Autowired
     private JobStatusLogRepository jobStatusLogRepository;
 
-    Long setInProgressStatus(String jobname){
+    public Long setInProgressStatus(String jobname,String fileName){
         JobsStatusLog jobsStatusLog=new JobsStatusLog();
         jobsStatusLog.setJob_name(jobname);
+        jobsStatusLog.setFile_name(fileName);
         jobsStatusLog.setStatus("IN_PROGRESS");
         jobsStatusLog.setStart_timestamp(LocalDateTime.now());
         jobStatusLogRepository.save(jobsStatusLog);
         return jobsStatusLog.getJob_id();
     }
 
-    public void updateStatus(Long jobId,boolean status,String message){
+    public void updateStatus(Long jobId,boolean status,String message,String fileName){
         JobsStatusLog jobsStatusLog = jobStatusLogRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job ID not found"));
         jobsStatusLog.setStatus(status ? "SUCCESS" : "FAILURE");
         jobsStatusLog.setEnd_timestamp(LocalDateTime.now());
+        jobsStatusLog.setFile_name(fileName);
         jobsStatusLog.setMessage(message);
         jobStatusLogRepository.save(jobsStatusLog);
 

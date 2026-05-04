@@ -43,7 +43,7 @@ public class DeactivateUserService {
 
     @Scheduled(cron = "0 0 18 * * ?")
     public void initiateOffBoardingProcess() throws IOException {
-        Long job_id = jobStatusManger.setInProgressStatus("Offboarding_Job");
+        Long job_id = jobStatusManger.setInProgressStatus("Offboarding_Job","");
         StringBuilder errorMessages = new StringBuilder();
 
         try {
@@ -54,7 +54,7 @@ public class DeactivateUserService {
             if (boardedList.isEmpty()) {
                 log.info("No data found for offboarding {}", new Date());
                 errorMessages.append("No data found for offboarding");
-                jobStatusManger.updateStatus(job_id, true, errorMessages.toString());
+                jobStatusManger.updateStatus(job_id, true, errorMessages.toString(),"");
                 return;
             }
            List<UserMaster> todayOffboardingData=boardedList.stream().filter(users -> (users.getDateOfLeaving().isBefore(systemDate)) || users.getDateOfLeaving().isEqual(systemDate)).collect(Collectors.toList());
@@ -75,11 +75,11 @@ public class DeactivateUserService {
                 }
             }
 
-            jobStatusManger.updateStatus(job_id, true, errorMessages.toString());
+            jobStatusManger.updateStatus(job_id, true, errorMessages.toString(),"");
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            jobStatusManger.updateStatus(job_id, false, e.getMessage());
+            jobStatusManger.updateStatus(job_id, false, e.getMessage(),"");
 
         } finally {
             log.info("Offboarding process completed");

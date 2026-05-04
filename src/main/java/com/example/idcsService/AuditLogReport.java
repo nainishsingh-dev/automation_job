@@ -5,6 +5,7 @@ import com.example.Repository.ApplicationAccessRepo;
 import com.example.Repository.AuditLogsRepo;
 import com.example.Model.OauthToken;
 //import com.sun.deploy.net.*;
+import java.io.File;
 import java.net.URLEncoder;
 
 import com.example.Repository.AuthenticationLogRepo;
@@ -53,7 +54,7 @@ public class AuditLogReport {
     //audit log report
     @Scheduled(cron = "0 0 1 * * ?")
     public void fetchAllTodayAuditEvents() {
-        Long job_id = jobStatusManger.setInProgressStatus(auditLog);
+        Long job_id = jobStatusManger.setInProgressStatus(auditLog,"");
         log.info("{} job started | jobId={}", auditLog, job_id);
 
         try {
@@ -125,21 +126,21 @@ public class AuditLogReport {
                 }
             }
 
-            jobStatusManger.updateStatus(job_id, true, "");
+            jobStatusManger.updateStatus(job_id, true, "","");
             log.info("{} job completed successfully | jobId={}", auditLog, job_id);
 
         } catch (Exception e) {
             e.printStackTrace();
             log.info("{} job failed | jobId={}", auditLog, job_id);
 
-            jobStatusManger.updateStatus(job_id, false, e.getMessage());
+            jobStatusManger.updateStatus(job_id, false, e.getMessage(),"");
         }
     }
 
     //app access and failure report
     @Scheduled(cron = "0 0 1 * * ?")
     public void applicationAccessLogs() {
-        Long job_id = jobStatusManger.setInProgressStatus(applicationAccessLog);
+        Long job_id = jobStatusManger.setInProgressStatus(applicationAccessLog,"");
         log.info("{} access job started | jobId={}", applicationAccessLog, job_id);
 
         try {
@@ -200,14 +201,14 @@ public class AuditLogReport {
                 }
             }
 
-            jobStatusManger.updateStatus(job_id, true, "");
+            jobStatusManger.updateStatus(job_id, true, "","");
             log.info("{} job completed successfully | jobId={}", applicationAccessLog, job_id);
 
         } catch (Exception e) {
             e.printStackTrace();
             log.info("{} job failed | jobId={}", applicationAccessLog, job_id);
 
-            jobStatusManger.updateStatus(job_id, false, e.getMessage());
+            jobStatusManger.updateStatus(job_id, false, e.getMessage(),"");
         }
     }
 
@@ -215,7 +216,7 @@ public class AuditLogReport {
 //login and success and failure report
     @Scheduled(cron = "0 0 3 * * ?")
     public void authenticationSuccessFailureLogs() {
-        Long job_id = jobStatusManger.setInProgressStatus(authenticationLog);
+        Long job_id = jobStatusManger.setInProgressStatus(authenticationLog,"");
         log.info("{} access job started | jobId={}", authenticationLog, job_id);
 
         try {
@@ -273,14 +274,14 @@ public class AuditLogReport {
                 }
             }
 
-            jobStatusManger.updateStatus(job_id, true, "");
+            jobStatusManger.updateStatus(job_id, true, "","");
             log.info("{} job completed successfully | jobId={}", authenticationLog, job_id);
 
         } catch (Exception e) {
             e.printStackTrace();
             log.info("{} job failed | jobId={}", authenticationLog, job_id);
 
-            jobStatusManger.updateStatus(job_id, false, e.getMessage());
+            jobStatusManger.updateStatus(job_id, false, e.getMessage(),"");
         }
     }
 
@@ -288,7 +289,7 @@ public class AuditLogReport {
     // notification log report
     @Scheduled(cron = "0 0 2 * * ?")
     public void notificationLogs() {
-        Long job_id = jobStatusManger.setInProgressStatus(notificationLogg);
+        Long job_id = jobStatusManger.setInProgressStatus(notificationLogg,"");
         log.info("{} access job started | jobId={}", notificationLogg, job_id);
 
         try {
@@ -359,15 +360,32 @@ public class AuditLogReport {
                 }
             }
 
-            jobStatusManger.updateStatus(job_id, true, "");
+            jobStatusManger.updateStatus(job_id, true, "","");
             log.info("{} job completed successfully | jobId={}", notificationLogg, job_id);
 
         } catch (Exception e) {
             e.printStackTrace();
             log.info("{} job failed | jobId={}", notificationLogg, job_id);
 
-            jobStatusManger.updateStatus(job_id, false, e.getMessage());
+            jobStatusManger.updateStatus(job_id, false, e.getMessage(),"");
         }
+    }
+
+
+    private LocalDateTime extractDate(File file) {
+
+        String name = file.getName();
+
+        // split
+        String[] parts = name.split("_");
+
+        String date = parts[6]; // 20260430
+        String time = parts[7].replace(".csv", ""); // 060003
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+
+        return LocalDateTime.parse(date + "_" + time, formatter);
     }
 
 

@@ -18,5 +18,7 @@ public class JobsStatusLog {
   private LocalDateTime start_timestamp;
   private  LocalDateTime end_timestamp;
   private String message;
+  private String file_name;
+
 
 }
