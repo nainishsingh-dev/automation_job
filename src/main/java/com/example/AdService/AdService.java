@@ -26,7 +26,7 @@ public class AdService {
     @Autowired
     private JobStatusManger jobStatusManger;
 
-    private static final String DIR = "/mnt /data";
+    private static final String DIR = "/mnt/data";
 
     @Scheduled(cron = "0 0 5 * * ?")
     public void scanFiles() {
@@ -43,8 +43,7 @@ public class AdService {
             try {
                 if (file.getName().contains(today)) {
                     if (!isFileReady(file)) {
-                        continue;
-                    }
+
                     processCsv(file, jobId);
                     System.out.println("Processing: " + file.getName());
                     jobStatusManger.updateStatus(jobId, true, "", file.getName());
@@ -52,6 +51,10 @@ public class AdService {
                 } else {
                     jobStatusManger.updateStatus(jobId, true, "File not available.", "");
 
+                }
+                }
+                else {
+                    jobStatusManger.updateStatus(jobId, true, "File not available.", "");
                 }
             } catch (Exception e) {
 
