@@ -5,6 +5,7 @@ import com.example.Repository.AdRepository;
 import com.example.Repository.JobStatusLogRepository;
 import com.example.idcsService.EnumTemplate;
 import com.example.idcsService.JobStatusManger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,10 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
+@Slf4j
 @Service
 public class AdService {
 
@@ -28,77 +32,53 @@ public class AdService {
 
     private static final String DIR = "/mnt/data";
 
-    @Scheduled(cron = "0 0 5 * * ?")
+    @Scheduled(cron = "0 0 10 * * ?")
     public void scanFiles() {
         File folder = new File(DIR);
-        File[] files = folder.listFiles();
-        Long jobId = jobStatusManger.setInProgressStatus(EnumTemplate.adUserSyncJob, "");
-
+        File[] fileList = folder.listFiles();
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        if (files == null) return;
-        for (File file : files) {
+        if (fileList == null) return;
+        File[] files = Arrays.stream(fileList)
+                .filter(file1 -> file1.getName().contains(today) && file1.getName().endsWith(".csv"))
+                .toArray(File[]::new);
 
-            if (!file.getName().endsWith(".csv")) continue;
+        Long jobId = jobStatusManger.setInProgressStatus(EnumTemplate.adUserSyncJob, "");
+        log.info("Ad sync process started jobId {}", jobId);
+        log.info("Files available in directory for today {}", files.length);
+        if (files.length > 0) {
 
-            try {
-                if (file.getName().contains(today)) {
-                    if (!isFileReady(file)) {
+            for (File file : files) {
+                try {
+                        processCsv(file, jobId);
+                        jobStatusManger.updateStatus(jobId, true, "Processing completed successfully", "");
+                        log.info("Ad sync completed successfully jobId {}", jobId);
+                } catch (Exception e) {
 
-                    processCsv(file, jobId);
-                    System.out.println("Processing: " + file.getName());
-                    jobStatusManger.updateStatus(jobId, true, "", file.getName());
-
-                } else {
-                    jobStatusManger.updateStatus(jobId, true, "File not available.", "");
-
+                    jobStatusManger.updateStatus(jobId, false, e.getMessage(), file.getName());
+                    System.out.println("Error in file: " + file.getName());
+                    log.error(e.getMessage());
                 }
-                }
-                else {
-                    jobStatusManger.updateStatus(jobId, true, "File not available.", "");
-                }
-            } catch (Exception e) {
-
-                jobStatusManger.updateStatus(jobId, false, e.getMessage(), file.getName());
-                System.out.println("Error in file: " + file.getName());
             }
         }
-    }
+        jobStatusManger.updateStatus(jobId, true, "Files not available for today", "");
+        log.info("Ad sync completed successfully jobId {}", jobId);
 
-
-    private boolean isFileReady(File file) {
-
-        long size1 = file.length();
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ignored) {
-        }
-
-        long size2 = file.length();
-
-        return size1 == size2;
     }
 
 
     public void processCsv(File file, Long jobId) {
 
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
             String line;
             boolean header = true;
-
             while ((line = br.readLine()) != null) {
-
                 if (header) {
                     header = false;
                     continue;
                 }
-
                 try {
                     String[] c = line.split(",");
-
                     if (c.length < 9) continue;
                     AdMaster user = new AdMaster();
                     user.setDisplayName(c[0]);
