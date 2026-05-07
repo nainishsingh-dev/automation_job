@@ -59,10 +59,10 @@ public class AdService {
                     log.error(e.getMessage());
                 }
             }
+        }else {
+            jobStatusManger.updateStatus(jobId, true, "Files not available for today", "");
+            log.info("Ad sync completed successfully jobId {}", jobId);
         }
-        jobStatusManger.updateStatus(jobId, true, "Files not available for today", "");
-        log.info("Ad sync completed successfully jobId {}", jobId);
-
     }
 
 
